@@ -27,6 +27,7 @@ df = df.drop(del_target_idx)
 
 # 특정 컬럼만으로 정제
 #  'AB', 'H', '2B','HR', 'BB'
+df_XX = df['H']+df['2B']+df['3B']+df['HR']
 df_XX = df.loc[:,['AB','H','2B','HR','BB']]
 df_HR = df.loc[:, ['SO']]
 
