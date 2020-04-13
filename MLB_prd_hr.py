@@ -25,12 +25,27 @@ del_target_idx = df[df.playerID == 'sanomi01'].index
 print("삭제 타겟 index : ", del_target_idx)
 df = df.drop(del_target_idx)
 
+
+#출루율 (안타 + 사사구) / (타수 + 사사구 + 희생플라이)
+df['OBP'] = (df['H']+df['2B']+df['3B']+df['HR']+df['BB']+df['HBP'])/(df['AB']+df['BB']+df['HBP']+df['SH']+df['SF'])
+#장타율 [단타 + (2*2루타) + (3*3루타) + (4*홈런] / 타수
+df['SLG'] = (df['H']+(2*df['2B'])+(3*df['3B'])+(4*df['HR']))/df['AB']
+
+df['OBP'] = df.OBP.round(3)
+df['SLG'] = df.SLG.round(3)
+
+#OPS 장타율 + 출루율
+df['OPS'] = df['OBP'] + df['SLG']
+
 # 특정 컬럼만으로 정제
 #  'AB', 'H', '2B','HR', 'BB'
-df_XX = df['H']+df['2B']+df['3B']+df['HR']
-df_XX = df.loc[:,['AB','H','2B','HR','BB']]
+# df_XX = df.loc[:,['AB','H','2B','HR','BB','OBP','SLG','OPS']]
+df_XX = df.loc[:,['AB','HR','BB','OBP']]
 df_HR = df.loc[:, ['SO']]
 
+
+
+print(df.head())
 
 
 df_XX = df_XX.reset_index(drop=True)
@@ -85,10 +100,10 @@ print("Y_data SHAPE", y_data.shape)
 # x_test_data = test_X.values
 
 
-X = tf.placeholder(tf.float32, shape=[None,5])
+X = tf.placeholder(tf.float32, shape=[None,4])
 Y = tf.placeholder(tf.float32, shape=[None,1])
 
-W = tf.Variable(tf.random_normal([5,1]), name='weight')
+W = tf.Variable(tf.random_normal([4,1]), name='weight')
 b = tf.Variable(tf.random_normal([1]), name='bias')
 
 #선형 회귀분석
@@ -109,7 +124,7 @@ for step in range(10000):
     cost_val, train_val, acc = sess.run(
         [cost, train, accuracy], feed_dict={X: x_data, Y: y_data})
 
-    if step%1000 == 0:
+    if step%100 == 0:
         print(step, "Cost:",cost_val, "ACC : ",acc )
 
 
@@ -118,7 +133,8 @@ for step in range(10000):
 # single_test_x = [[470,137,27,2,45,104,110]] #트라웃
 # single_test_x = [[570,140,28,2,31,87,50]] #업튼
 # single_test_x = [[345,89,24,8,18]] #스즈키
-single_test_x = [[279,75,17,18,53]] #미구엘 사노(미네소타 트윈스)
+
+single_test_x = [[279, 18, 53, 0.495]]  # 미구엘 사노(미네소타 트윈스)
 single_test_x = min_max_scaler.transform(single_test_x)
 
 print("single_test_x", single_test_x)
@@ -129,7 +145,7 @@ score = sess.run(hypothesis, feed_dict={X: arr})
 
 print("예상 삼진개수 ", min_max_scaler_Y.inverse_transform(score))
 
-answer = [[119]]
-accr = sess.run(accuracy, feed_dict={X: arr, Y: answer})
-print("정확도 : ", accr)
+# answer = [[119]]
+# accr = sess.run(accuracy, feed_dict={X: arr, Y: answer})
+# print("정확도 : ", accr)
 

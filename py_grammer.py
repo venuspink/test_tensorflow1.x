@@ -27,3 +27,13 @@ sess = tf.Session()
 ar = aaa.eval(session=sess)
 
 print(ar)
+
+
+
+obp = (75+17+1+18+54)/(279+54)
+
+slg = (75+(2*17)+(3*1)+(4*18))/279
+
+ops = obp + slg
+
+print(round(obp, 3), round(slg, 3), round(ops,3))
